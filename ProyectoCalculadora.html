@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Proyecto Calculadora</title>
+        <meta charset="windows-1252">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <style>
+            
+            *{box-sizing: border-box}
+            .container{width: 400px; 
+                       overflow: hidden; 
+                       margin: 50px auto
+                     }
+            
+            .container .show-calc{border: 2px solid #58ecf6; 
+                                  height:50px;
+                                  width:100%;
+                                  font-size:25px;
+                                  line-height: 50px;
+                                  border-radius: 5px;
+                                  padding: 0 10px;
+                                }
+            .container .box{width: 25%; 
+                            height: 50px;
+                            float: left;
+                            border: 1px solid #FFF; 
+                            font-size:25px;
+                            line-height: 50px; 
+                            text-align: center;
+                            font-family: sans-serif;
+                            transition: all .25s ease-in-out;
+                            background-color: #93e61f;
+                            color: #fff; 
+                            cursor: pointer;
+                          }
+            .container .box:hover{background: #1E8BC3}
+            
+            .container .box-opr{background: #F89406}
+            
+            .container .box-reset,.container .box-clear{width: 50%}
+            
+            .container .box-reset{background: #446CB3}
+            .container .box-clear{background: #F22613} 
+            
+        </style>
+        
+    </head>
+    <body>
+        
+        <div class="container">
+            <!-- Aqui se muestran los numeros para hacer el calculo -->
+            <div class="show-calc" id="sc">0</div>
+            
+            <!-- numeros div -->
+            <div class="box box-num">0</div>
+            <div class="box box-num">1</div>
+            <div class="box box-num">2</div>
+            <div class="box box-num">3</div>
+            <div class="box box-num">4</div>
+            <div class="box box-num">5</div>
+            <div class="box box-num">6</div>
+            <div class="box box-num">7</div>
+            <div class="box box-num">8</div>
+            <div class="box box-num">9</div>
+            <div class="box box-num">.</div>
+            
+            <!-- operadores div -->
+            <div class="box box-opr">+</div>
+            <div class="box box-opr">-</div>
+            <div class="box box-opr">X</div>
+            <div class="box box-opr">/</div>
+            <div class="box box-opr">=</div>
+            
+            <!-- reiniciar y limpiar -->
+            <div class="box box-reset" id="reset">reiniciar</div>
+            <div class="box box-clear" id="clear">limpiar</div>
+            
+        </div>
+        
+        <script>
+            
+            // creamos nuestras variables
+            var num1 = 0, num2 = 0, opr = "",
+                divNumbers = document.querySelectorAll(".container .box-num"),
+                divOpers = document.querySelectorAll(".container .box-opr"),
+                showCalcBox = document.getElementById("sc"),
+                resetBox = document.getElementById("reset"),
+                clearBox = document.getElementById("clear"),
+                // isOprClick = Revisamos si un operador fue cliqueado
+                // isEqClick = Revisamos si el igual fue cliquieado
+                // fco = Revisamos cual fue el primer operador que se clickeo
+                isOprClick = false, isEqClick = false, fco = 0;
+        
+        // Agregamos accion a todos los Divs
+        // Limpiamos la calculadora
+        
+        clearBox.onclick = function(){
+            showCalcBox.innerHTML = showCalcBox.innerHTML.substring(0,showCalcBox.innerHTML.length - 1);
+        };
+        
+        // Reiniciamos los divs para limpiarlos y poder iniciar de nuevo
+        resetBox.onclick = function(){
+            isOprClick = false;
+            isEqClick = false;
+            fco = 0;
+            num1 = 0;
+            num2 = 0;
+            opr = "";
+            
+            sc.innerHTML = "0";
+        };
+            
+            // Agregamos la accion para mostarr los numeros
+            for(var i = 0; i < divNumbers.length; i++)
+            {
+                divNumbers[i].onclick = function(){
+                  
+                  if(isOprClick)
+                  {
+                      num1 = parseFloat(sc.innerHTML);
+                      sc.innerHTML = "";
+                  }
+                  // Revisamos si el el text no contiene  '.'
+                  if(sc.innerHTML.toString().indexOf(".") === -1)
+                  {
+                      // Si el texto es igual a 0 y el div presionado no es '.'
+                      if(sc.innerHTML === "0" && this.innerHTML !== "."){
+                        sc.innerHTML = this.innerHTML;    
+                        isOprClick = false;
+                      }else{
+                          sc.innerHTML = sc.innerHTML + this.innerHTML;
+                          isOprClick = false;
+                      }
+                      
+                  }else if(this.innerHTML !== ".")
+                    {
+                      sc.innerHTML = sc.innerHTML + this.innerHTML;
+                      isOprClick = false;
+                    }
+                  
+                 
+                };
+            }
+            
+            // Agregamos accion poara las operaciones
+            for(var i = 0; i < divOpers.length; i++)
+            {
+                divOpers[i].onclick = function(){
+                  
+                    if(fco === 0)
+                    {
+                        fco++;
+                        num1 = parseFloat(sc.innerHTML);
+                        // Obtenemos el operador 
+                        opr = this.innerHTML;
+                        isOprClick = true;
+                    }
+                    else{
+                        if(this.innerHTML !== "="){// Si el clic no es '='
+                            if(!isEqClick){// Si '=' No esta aun listo
+                                
+                                num2 = parseFloat(sc.innerHTML);
+                                sc.innerHTML = calc(opr, num1, num2);
+                                opr  = this.innerHTML;
+                                num2 = parseFloat(sc.innerHTML);
+                                isOprClick = true;
+                                isEqClick = false;
+                            }else{
+                                isEqClick = false;
+                                opr = this.innerHTML;
+                            }
+                        }else{
+                                num2 = parseFloat(sc.innerHTML);
+                                sc.innerHTML = calc(opr, num1, num2);
+                                opr  = this.innerHTML;
+                                num1 = parseFloat(sc.innerHTML);
+                                isOprClick = true;
+                                isEqClick = true;
+                        }
+                    }
+        
+                };
+            }
+            
+            // Creamos la funcion calculadora que hara las operaciones
+            function calc(op,n1,n2)
+            {
+                var result = 0;
+                
+                switch(op){
+                    case"+":
+                        result = n1 + n2;
+                        break;
+                   case"-":
+                        result = n1 - n2;
+                        break;  
+                    case"X":
+                        result = n1 * n2;
+                        break;
+                    case"/":
+                        if(n2 > 0)
+                        result = n1 / n2;
+                    
+                        break;
+                }
+                return result;
+            }
+            
+            
+        </script>
+        
+    </body>
+</html>
